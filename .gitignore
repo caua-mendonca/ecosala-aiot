@@ -3,6 +3,9 @@
 *.env
 !.env.example
 
+# Binarios locais de Mosquitto/InfluxDB baixados para desenvolvimento
+/tools/
+
 # Python (backend)
 __pycache__/
 *.pyc
@@ -23,6 +26,7 @@ frontend/.vite/
 
 # Mosquitto (dados/senhas reais geradas localmente)
 infra/mosquitto/passwd
+infra/mosquitto/credentials.local.txt
 infra/mosquitto/data/*
 !infra/mosquitto/data/.gitkeep
 infra/mosquitto/log/*
