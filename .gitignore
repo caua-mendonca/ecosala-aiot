@@ -23,8 +23,10 @@ frontend/.vite/
 
 # Mosquitto (dados/senhas reais geradas localmente)
 infra/mosquitto/passwd
-infra/mosquitto/data/
-infra/mosquitto/log/
+infra/mosquitto/data/*
+!infra/mosquitto/data/.gitkeep
+infra/mosquitto/log/*
+!infra/mosquitto/log/.gitkeep
 
 # InfluxDB (dados locais)
 infra/influxdb/data/

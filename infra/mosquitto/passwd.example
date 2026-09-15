@@ -1,0 +1,50 @@
+Este arquivo e apenas DOCUMENTACAO do formato esperado do arquivo de senhas
+do Mosquitto. Ele NAO e lido pelo broker (o arquivo real, chamado "passwd",
+sem extensao, e gerado localmente por cada desenvolvedor e esta no
+.gitignore, pois contem hashes de senhas).
+
+Formato de uma linha do arquivo real "passwd" (gerado automaticamente pelo
+utilitario mosquitto_passwd, usando o algoritmo PBKDF2-SHA512):
+
+    <username>:$7$101$<salt em base64>$<hash em base64>
+
+O contrato MQTT do projeto (docs/contrato-mqtt.md) exige dois usuarios:
+
+  - "device"  -> usado pelo firmware ESP32 (Wokwi) para publicar telemetria
+                 e status.
+  - "backend" -> usado pelo backend Python para assinar os topicos.
+
+--------------------------------------------------------------------------
+Como gerar o arquivo real "infra/mosquitto/passwd":
+--------------------------------------------------------------------------
+
+A partir da raiz do repositorio:
+
+    cd infra/mosquitto
+
+    # Cria o arquivo "passwd" e adiciona o usuario "device"
+    # (pedira a senha interativamente, duas vezes)
+    mosquitto_passwd -c passwd device
+
+    # Adiciona o usuario "backend" ao mesmo arquivo (sem -c, para nao
+    # sobrescrever o arquivo existente)
+    mosquitto_passwd passwd backend
+
+    cd ../..
+
+Guarde as senhas escolhidas: elas serao usadas depois no ".env" do backend
+(Etapa 4/6) e nas credenciais MQTT configuradas no firmware Wokwi (Etapa 3).
+
+--------------------------------------------------------------------------
+Windows sem mosquitto_passwd.exe no PATH
+--------------------------------------------------------------------------
+
+Se instalou o Mosquitto pelo instalador oficial, o executavel geralmente
+fica em:
+
+    C:\Program Files\mosquitto\mosquitto_passwd.exe
+
+Use o caminho completo, por exemplo (PowerShell, a partir da raiz do repo):
+
+    & "C:\Program Files\mosquitto\mosquitto_passwd.exe" -c infra\mosquitto\passwd device
+    & "C:\Program Files\mosquitto\mosquitto_passwd.exe" infra\mosquitto\passwd backend
