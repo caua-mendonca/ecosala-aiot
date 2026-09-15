@@ -24,3 +24,7 @@ class MessageSubscriber(Protocol):
     def get_known_devices(self) -> list[DeviceConnection]:
         """Retorna os dispositivos conhecidos e seu status online/offline."""
         ...
+
+    def is_connected(self) -> bool:
+        """Indica se a conexao com o broker MQTT esta ativa (usado por /health)."""
+        ...

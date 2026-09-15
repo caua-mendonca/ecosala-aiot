@@ -27,10 +27,13 @@ class FakeReadingRepository:
 class FakeMessageSubscriber:
     """Implementacao em memoria de MessageSubscriber, para testes de casos de uso."""
 
-    def __init__(self, devices: list[DeviceConnection] | None = None) -> None:
+    def __init__(
+        self, devices: list[DeviceConnection] | None = None, connected: bool = True
+    ) -> None:
         self.devices = devices or []
         self.started = False
         self.stopped = False
+        self.connected = connected
 
     def start(self) -> None:
         self.started = True
@@ -40,3 +43,6 @@ class FakeMessageSubscriber:
 
     def get_known_devices(self) -> list[DeviceConnection]:
         return self.devices
+
+    def is_connected(self) -> bool:
+        return self.connected

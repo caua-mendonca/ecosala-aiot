@@ -17,6 +17,7 @@ dev = [
     "ruff>=0.6,<1.0",
     "mypy>=1.11,<2.0",
     "pytest>=8.2,<9.0",
+    "httpx>=0.27,<1.0",
 ]
 
 [build-system]
@@ -36,6 +37,9 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+# B008: Depends(...)/Query(...) como valor padrao de parametro e o idioma
+# padrao do FastAPI para injecao de dependencia, nao um bug.
+ignore = ["B008"]
 
 [tool.mypy]
 python_version = "3.12"

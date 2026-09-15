@@ -72,6 +72,9 @@ class PahoMessageSubscriber:
         with self._devices_lock:
             return list(self._devices.values())
 
+    def is_connected(self) -> bool:
+        return self._client.is_connected()
+
     def _on_connect(
         self,
         client: mqtt.Client,
