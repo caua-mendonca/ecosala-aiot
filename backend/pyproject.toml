@@ -41,3 +41,15 @@ select = ["E", "F", "I", "UP", "B"]
 python_version = "3.12"
 strict = true
 exclude = ["tests/"]
+
+# influxdb-client e paho-mqtt reexportam simbolos de submodulos sem
+# declara-los em __all__; sem isso o mypy estrito os trata como nao
+# publicos. Os adaptadores de infraestrutura tambem chamam APIs do
+# influxdb-client (ex.: Point) que nao possuem anotacoes de tipo completas.
+[[tool.mypy.overrides]]
+module = ["influxdb_client", "influxdb_client.*", "paho.mqtt.client"]
+implicit_reexport = true
+
+[[tool.mypy.overrides]]
+module = "app.infrastructure.influx.*"
+disallow_untyped_calls = false
