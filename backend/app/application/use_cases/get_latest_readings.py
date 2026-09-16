@@ -5,8 +5,6 @@ from app.domain.ports.reading_repository import ReadingRepository
 
 
 class GetLatestReadings:
-    """Caso de uso: retorna a ultima leitura conhecida de cada dispositivo."""
-
     def __init__(self, repository: ReadingRepository) -> None:
         self._repository = repository
 

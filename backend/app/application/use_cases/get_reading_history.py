@@ -5,8 +5,6 @@ from app.domain.ports.reading_repository import ReadingRepository
 
 
 class GetReadingHistory:
-    """Caso de uso: retorna o historico agregado de leituras de um dispositivo."""
-
     def __init__(self, repository: ReadingRepository) -> None:
         self._repository = repository
 

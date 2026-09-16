@@ -1,5 +1,3 @@
-"""Schemas HTTP (request/response) da API. Convertem DTOs/dominio <-> JSON."""
-
 from __future__ import annotations
 
 from datetime import datetime

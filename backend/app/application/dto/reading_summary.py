@@ -9,8 +9,6 @@ from app.domain.value_objects.comfort_status import ComfortStatus
 
 @dataclass(frozen=True)
 class ReadingSummaryDTO:
-    """Representacao de uma leitura classificada, pronta para a presentation."""
-
     device_id: str
     room_id: str
     timestamp: datetime

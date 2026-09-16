@@ -5,8 +5,6 @@ from app.domain.entities.evaluated_reading import EvaluatedReading
 
 
 class FakeReadingRepository:
-    """Implementacao em memoria de ReadingRepository, para testes de casos de uso."""
-
     def __init__(self) -> None:
         self.saved: list[EvaluatedReading] = []
         self.latest_by_room: dict[str | None, list[EvaluatedReading]] = {}
@@ -25,8 +23,6 @@ class FakeReadingRepository:
 
 
 class FakeMessageSubscriber:
-    """Implementacao em memoria de MessageSubscriber, para testes de casos de uso."""
-
     def __init__(
         self, devices: list[DeviceConnection] | None = None, connected: bool = True
     ) -> None:

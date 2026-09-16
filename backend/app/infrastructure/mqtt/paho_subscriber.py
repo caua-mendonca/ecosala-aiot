@@ -1,10 +1,3 @@
-"""Assinante MQTT (implementa o port MessageSubscriber) baseado em paho-mqtt.
-
-Assina os topicos de telemetria e status definidos em docs/contrato-mqtt.md,
-encaminha leituras validas para o caso de uso IngestReading e mantem em
-memoria o ultimo status online/offline conhecido de cada dispositivo.
-"""
-
 from __future__ import annotations
 
 import logging
@@ -30,8 +23,6 @@ EXPECTED_TOPIC_SEGMENTS = 5
 
 
 class PahoMessageSubscriber:
-    """Implementacao de MessageSubscriber usando o cliente paho-mqtt."""
-
     def __init__(
         self,
         host: str,

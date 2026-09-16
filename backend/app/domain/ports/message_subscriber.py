@@ -6,25 +6,10 @@ from app.domain.entities.device_connection import DeviceConnection
 
 
 class MessageSubscriber(Protocol):
-    """Porta de assinatura de mensagens MQTT.
+    def start(self) -> None: ...
 
-    Implementada pela infraestrutura (paho-mqtt, Etapa 5), rodando em thread
-    propria e invocando o caso de uso IngestReading para cada telemetria
-    valida recebida.
-    """
+    def stop(self) -> None: ...
 
-    def start(self) -> None:
-        """Inicia a assinatura dos topicos em thread propria."""
-        ...
+    def get_known_devices(self) -> list[DeviceConnection]: ...
 
-    def stop(self) -> None:
-        """Encerra a assinatura e a conexao com o broker."""
-        ...
-
-    def get_known_devices(self) -> list[DeviceConnection]:
-        """Retorna os dispositivos conhecidos e seu status online/offline."""
-        ...
-
-    def is_connected(self) -> bool:
-        """Indica se a conexao com o broker MQTT esta ativa (usado por /health)."""
-        ...
+    def is_connected(self) -> bool: ...

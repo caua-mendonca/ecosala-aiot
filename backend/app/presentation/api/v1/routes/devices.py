@@ -1,5 +1,3 @@
-"""GET /devices - dispositivos conhecidos e seu status online/offline."""
-
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends

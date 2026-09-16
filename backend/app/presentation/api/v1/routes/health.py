@@ -1,5 +1,3 @@
-"""GET /health - status da API, da conexao MQTT e do InfluxDB."""
-
 from __future__ import annotations
 
 import logging

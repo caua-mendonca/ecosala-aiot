@@ -1,4 +1,3 @@
-/** Espelha ComfortThresholdsSchema da API. */
 export interface ComfortThresholds {
   temperature_min_c: number
   temperature_max_c: number

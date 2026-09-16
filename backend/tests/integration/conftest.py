@@ -1,11 +1,3 @@
-"""Utilitarios compartilhados pelos testes de integracao.
-
-Estes testes exigem os servicos reais (Mosquitto/InfluxDB) rodando
-localmente — ver infra/mosquitto/ e infra/influxdb/setup.md. Quando os
-servicos nao estao acessiveis, os testes sao pulados automaticamente (nao
-falham), para nao quebrar uma rodada normal de `pytest`.
-"""
-
 from __future__ import annotations
 
 import socket
@@ -22,8 +14,6 @@ def is_port_open(host: str, port: int, timeout: float = 1.0) -> bool:
 
 
 class FakeReadingRepository:
-    """Duplicata minima de tests/unit/fakes.py (evita import entre pastas de teste)."""
-
     def __init__(self) -> None:
         self.saved: list[EvaluatedReading] = []
 

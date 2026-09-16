@@ -4,10 +4,6 @@ import { usePolling } from '@/composables/usePolling'
 
 const DASHBOARD_POLL_INTERVAL_MS = 5000
 
-/**
- * Mantem leituras e dispositivos atualizados a cada 5s enquanto o
- * componente chamador estiver montado (ver usePolling).
- */
 export function useReadings() {
   const readingsStore = useReadingsStore()
   const devicesStore = useDevicesStore()

@@ -1,15 +1,3 @@
-"""Implementacao de ReadingRepository usando InfluxDB 2.x (ver docs/arquitetura.md).
-
-Modelo de dados (measurement "environment"):
-  - tags: device_id, room_id, comfort_status
-  - fields: temperature, humidity, luminosity
-
-Para o historico agregado, o status de conforto e recalculado a partir dos
-valores medios de cada janela (em vez de reaproveitar a tag comfort_status),
-pois uma janela agregada pode combinar pontos com status originalmente
-diferentes — a tag por si so nao representaria o status do valor medio.
-"""
-
 from __future__ import annotations
 
 import logging
@@ -30,8 +18,6 @@ DEFAULT_LATEST_LOOKBACK = "-30d"
 
 
 class InfluxReadingRepository:
-    """Implementacao de ReadingRepository usando o cliente oficial do InfluxDB."""
-
     def __init__(
         self,
         client: InfluxDBClient,

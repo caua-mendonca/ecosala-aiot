@@ -22,8 +22,6 @@ VALID_PAYLOAD = {
 
 @dataclass
 class FakeMqttMessage:
-    """Duck-typa mqtt.MQTTMessage (so os atributos usados por _on_message)."""
-
     topic: str
     payload: bytes
 
@@ -54,7 +52,7 @@ def make_subscriber() -> tuple[PahoMessageSubscriber, FakeReadingRepository]:
 def test_handle_telemetry_ingests_valid_payload_and_marks_device_online() -> None:
     subscriber, repository = make_subscriber()
 
-    subscriber._handle_telemetry(  # noqa: SLF001 - metodo interno testado diretamente
+    subscriber._handle_telemetry(
         "esp32-sala-101", "sala-101", json.dumps(VALID_PAYLOAD).encode("utf-8")
     )
 
@@ -68,7 +66,7 @@ def test_handle_telemetry_ingests_valid_payload_and_marks_device_online() -> Non
 def test_handle_telemetry_ignores_invalid_payload_and_does_not_touch_device() -> None:
     subscriber, repository = make_subscriber()
 
-    subscriber._handle_telemetry("esp32-sala-101", "sala-101", b"not-json")  # noqa: SLF001
+    subscriber._handle_telemetry("esp32-sala-101", "sala-101", b"not-json")
 
     assert repository.saved == []
     assert subscriber.get_known_devices() == []
@@ -77,10 +75,10 @@ def test_handle_telemetry_ignores_invalid_payload_and_does_not_touch_device() ->
 def test_handle_status_updates_online_and_offline() -> None:
     subscriber, _ = make_subscriber()
 
-    subscriber._handle_status("esp32-sala-101", "sala-101", b"online")  # noqa: SLF001
+    subscriber._handle_status("esp32-sala-101", "sala-101", b"online")
     assert subscriber.get_known_devices()[0].online is True
 
-    subscriber._handle_status("esp32-sala-101", "sala-101", b"offline")  # noqa: SLF001
+    subscriber._handle_status("esp32-sala-101", "sala-101", b"offline")
     assert subscriber.get_known_devices()[0].online is False
 
 
@@ -91,7 +89,7 @@ def test_on_message_routes_telemetry_topic() -> None:
         payload=json.dumps(VALID_PAYLOAD).encode("utf-8"),
     )
 
-    subscriber._on_message(None, None, message)  # type: ignore[arg-type]  # noqa: SLF001
+    subscriber._on_message(None, None, message)
 
     assert len(repository.saved) == 1
 
@@ -102,7 +100,7 @@ def test_on_message_routes_status_topic() -> None:
         topic="ecosala/v1/sala-101/esp32-sala-101/status", payload=b"online"
     )
 
-    subscriber._on_message(None, None, message)  # type: ignore[arg-type]  # noqa: SLF001
+    subscriber._on_message(None, None, message)
 
     assert subscriber.get_known_devices()[0].online is True
 
@@ -111,7 +109,7 @@ def test_on_message_ignores_topic_outside_contract() -> None:
     subscriber, repository = make_subscriber()
     message = FakeMqttMessage(topic="outro/topico/qualquer", payload=b"x")
 
-    subscriber._on_message(None, None, message)  # type: ignore[arg-type]  # noqa: SLF001
+    subscriber._on_message(None, None, message)
 
     assert repository.saved == []
     assert subscriber.get_known_devices() == []

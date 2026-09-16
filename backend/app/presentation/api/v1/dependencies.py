@@ -1,11 +1,3 @@
-"""Provedores de dependencia da API (FastAPI Depends).
-
-Os objetos reais sao construidos uma unica vez na composicao (main.py,
-lifespan) e guardados em app.state; estas funcoes apenas os expoem as
-rotas. Em testes, cada funcao pode ser substituida via
-`app.dependency_overrides` sem precisar subir MQTT/InfluxDB reais.
-"""
-
 from __future__ import annotations
 
 from fastapi import Request

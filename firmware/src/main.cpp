@@ -1,62 +1,41 @@
-// EcoSala — Firmware ESP32 (Wokwi)
-// Le temperatura/umidade (DHT22) e luminosidade aproximada (LDR) e publica
-// via MQTT no formato definido em docs/contrato-mqtt.md.
-
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <DHT.h>
 #include <ArduinoJson.h>
+#include <time.h>
 
-// ---------------------------------------------------------------------
-// Configuracao (constantes agrupadas)
-// ---------------------------------------------------------------------
-
-// Wi-Fi (ambiente de simulacao Wokwi)
 constexpr char WIFI_SSID[] = "Wokwi-GUEST";
 constexpr char WIFI_PASSWORD[] = "";
 
-// Broker MQTT
-// - Rodando via Wokwi VS Code extension + Private IoT Gateway: "host.wokwi.internal"
-// - Ver firmware/README.md para o passo a passo completo (inclusive alternativa
-//   com broker publico apenas para testes de conectividade).
 constexpr char MQTT_HOST[] = "host.wokwi.internal";
 constexpr int MQTT_PORT = 1883;
 constexpr char MQTT_USERNAME[] = "device";
 constexpr char MQTT_PASSWORD[] = "dev-esp32-2026";
 
-// Identificacao do dispositivo / sala (contrato MQTT)
 constexpr char ROOM_ID[] = "sala-101";
 constexpr char DEVICE_ID[] = "esp32-sala-101";
 
-// Topicos (ver docs/contrato-mqtt.md)
 const String TOPIC_TELEMETRY = String("ecosala/v1/") + ROOM_ID + "/" + DEVICE_ID + "/telemetry";
 const String TOPIC_STATUS = String("ecosala/v1/") + ROOM_ID + "/" + DEVICE_ID + "/status";
 
-// Pinos dos sensores
 constexpr int DHT_PIN = 15;
-constexpr int LDR_PIN = 34; // pino somente-ADC (ADC1_CH6)
+constexpr int LDR_PIN = 34;
 #define DHT_TYPE DHT22
 
-// Intervalo de publicacao (configuravel)
 constexpr unsigned long PUBLISH_INTERVAL_MS = 5000;
 
-// Constantes de conversao aproximada do LDR para lux
-// (formula de aproximacao usual para fotoresistores em divisor de tensao;
-// os valores nao representam uma calibracao fisica exata — adequados para
-// fins de simulacao/demonstracao, conforme indicado em docs/problema.md)
 constexpr float LDR_GAMMA = 0.7f;
 constexpr float LDR_RL10_KOHM = 50.0f;
 constexpr float ADC_MAX_VALUE = 4095.0f;
 constexpr float ADC_REF_VOLTAGE = 3.3f;
 constexpr float LDR_DIVIDER_RESISTOR_OHM = 2000.0f;
 
-// Reconexao
 constexpr unsigned long WIFI_RETRY_DELAY_MS = 500;
 constexpr unsigned long MQTT_RETRY_DELAY_MS = 2000;
 
-// ---------------------------------------------------------------------
-// Estado global
-// ---------------------------------------------------------------------
+constexpr char NTP_SERVER[] = "pool.ntp.org";
+constexpr long GMT_OFFSET_SEC = 0;
+constexpr int DAYLIGHT_OFFSET_SEC = 0;
 
 DHT dht(DHT_PIN, DHT_TYPE);
 WiFiClient wifiClient;
@@ -69,10 +48,6 @@ struct SensorReading {
   float humidity;
   float luminosity;
 };
-
-// ---------------------------------------------------------------------
-// Wi-Fi
-// ---------------------------------------------------------------------
 
 void connectWiFi() {
   if (WiFi.status() == WL_CONNECTED) {
@@ -89,25 +64,20 @@ void connectWiFi() {
   }
 
   Serial.printf("\nWi-Fi conectado. IP: %s\n", WiFi.localIP().toString().c_str());
+  configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
 }
-
-// ---------------------------------------------------------------------
-// MQTT
-// ---------------------------------------------------------------------
 
 void connectMqtt() {
   while (!mqttClient.connected()) {
     Serial.printf("Conectando ao broker MQTT %s:%d...\n", MQTT_HOST, MQTT_PORT);
 
-    // LWT: se a conexao cair sem publicar "offline" explicitamente, o
-    // broker publica esta mensagem automaticamente (retained).
     bool connected = mqttClient.connect(
         DEVICE_ID,
         MQTT_USERNAME,
         MQTT_PASSWORD,
         TOPIC_STATUS.c_str(),
-        1,     // willQos
-        true,  // willRetain
+        1,
+        true,
         "offline"
     );
 
@@ -122,10 +92,6 @@ void connectMqtt() {
   }
 }
 
-// ---------------------------------------------------------------------
-// Sensores
-// ---------------------------------------------------------------------
-
 float readLuminosityLux() {
   int analogValue = analogRead(LDR_PIN);
   float voltage = (analogValue / ADC_MAX_VALUE) * ADC_REF_VOLTAGE;
@@ -139,8 +105,6 @@ float readLuminosityLux() {
   return lux;
 }
 
-// Retorna false quando a leitura do DHT22 e invalida (NaN) — nesse caso a
-// leitura nao deve ser publicada.
 bool readSensors(SensorReading &reading) {
   reading.temperature = dht.readTemperature();
   reading.humidity = dht.readHumidity();
@@ -154,16 +118,12 @@ bool readSensors(SensorReading &reading) {
   return true;
 }
 
-// ---------------------------------------------------------------------
-// Payload / publicacao
-// ---------------------------------------------------------------------
-
 size_t buildPayload(const SensorReading &reading, char *buffer, size_t bufferSize) {
   StaticJsonDocument<256> doc;
 
   doc["device_id"] = DEVICE_ID;
   doc["room_id"] = ROOM_ID;
-  doc["timestamp"] = (unsigned long)(millis() / 1000);
+  doc["timestamp"] = (unsigned long)time(nullptr);
   doc["temperature"] = reading.temperature;
   doc["humidity"] = reading.humidity;
   doc["luminosity"] = reading.luminosity;
@@ -183,14 +143,10 @@ void publishTelemetry(const SensorReading &reading) {
                 payload);
 }
 
-// ---------------------------------------------------------------------
-// Ciclo principal
-// ---------------------------------------------------------------------
-
 void setup() {
   Serial.begin(115200);
   dht.begin();
-  analogReadResolution(12); // 0-4095
+  analogReadResolution(12);
 
   connectWiFi();
   mqttClient.setServer(MQTT_HOST, MQTT_PORT);

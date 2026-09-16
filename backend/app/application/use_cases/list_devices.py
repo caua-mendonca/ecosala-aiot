@@ -5,8 +5,6 @@ from app.domain.ports.message_subscriber import MessageSubscriber
 
 
 class ListDevices:
-    """Caso de uso: retorna os dispositivos conhecidos e seu status online/offline."""
-
     def __init__(self, message_subscriber: MessageSubscriber) -> None:
         self._message_subscriber = message_subscriber
 

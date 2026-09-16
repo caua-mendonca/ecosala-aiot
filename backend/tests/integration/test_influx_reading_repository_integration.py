@@ -1,15 +1,3 @@
-"""Teste de integracao: InfluxReadingRepository contra um InfluxDB real.
-
-Requer o InfluxDB rodando localmente com org/bucket/token configurados
-(ver infra/influxdb/setup.md) e as variaveis de ambiente INFLUXDB_URL,
-INFLUXDB_ORG, INFLUXDB_BUCKET, INFLUXDB_TOKEN (ou um arquivo backend/.env).
-Se o servico nao estiver acessivel, o teste e pulado automaticamente.
-
-Como rodar manualmente:
-    cd backend
-    .venv\\Scripts\\python.exe -m pytest tests/integration/test_influx_reading_repository.py -v
-"""
-
 from __future__ import annotations
 
 import os
@@ -75,7 +63,7 @@ def test_save_and_get_latest_roundtrip() -> None:
     )
 
     repository.save(EvaluatedReading(reading=reading, comfort_status=ComfortStatus.OK))
-    time.sleep(1)  # da tempo do InfluxDB indexar o ponto recem-gravado
+    time.sleep(1)
 
     latest = repository.get_latest(room_id="sala-teste-integracao")
 
@@ -104,5 +92,4 @@ def test_get_history_returns_aggregated_points() -> None:
 
     assert len(history) >= 1
     assert history[0].reading.device_id == device_id
-    # Status recalculado a partir do valor agregado, nao da tag original
     assert history[0].comfort_status == ComfortStatus.CRITICO

@@ -1,7 +1,3 @@
-"""Composicao da aplicacao: unico ponto onde as implementacoes concretas dos
-ports sao instanciadas e conectadas aos casos de uso (injecao de dependencia).
-"""
-
 from __future__ import annotations
 
 import logging

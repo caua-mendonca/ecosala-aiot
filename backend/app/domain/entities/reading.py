@@ -6,8 +6,6 @@ from datetime import datetime
 
 @dataclass(frozen=True)
 class Reading:
-    """Uma leitura bruta de sensores de uma sala, em um instante."""
-
     device_id: str
     room_id: str
     timestamp: datetime

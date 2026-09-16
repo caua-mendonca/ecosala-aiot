@@ -44,28 +44,28 @@ def test_all_within_range_is_ok(thresholds: ComfortThresholds) -> None:
 
 def test_slightly_above_max_temperature_is_atencao(thresholds: ComfortThresholds) -> None:
     evaluator = ComfortEvaluator(thresholds)
-    reading = make_reading(temperature=27.0, humidity=50.0, luminosity=400.0)  # +1 acima do max
+    reading = make_reading(temperature=27.0, humidity=50.0, luminosity=400.0)
 
     assert evaluator.evaluate(reading) == ComfortStatus.ATENCAO
 
 
 def test_far_above_max_temperature_is_critico(thresholds: ComfortThresholds) -> None:
     evaluator = ComfortEvaluator(thresholds)
-    reading = make_reading(temperature=32.0, humidity=50.0, luminosity=400.0)  # +6 acima do max
+    reading = make_reading(temperature=32.0, humidity=50.0, luminosity=400.0)
 
     assert evaluator.evaluate(reading) == ComfortStatus.CRITICO
 
 
 def test_slightly_below_min_humidity_is_atencao(thresholds: ComfortThresholds) -> None:
     evaluator = ComfortEvaluator(thresholds)
-    reading = make_reading(temperature=23.0, humidity=35.0, luminosity=400.0)  # -5 abaixo do min
+    reading = make_reading(temperature=23.0, humidity=35.0, luminosity=400.0)
 
     assert evaluator.evaluate(reading) == ComfortStatus.ATENCAO
 
 
 def test_far_below_min_humidity_is_critico(thresholds: ComfortThresholds) -> None:
     evaluator = ComfortEvaluator(thresholds)
-    reading = make_reading(temperature=23.0, humidity=20.0, luminosity=400.0)  # -20 abaixo do min
+    reading = make_reading(temperature=23.0, humidity=20.0, luminosity=400.0)
 
     assert evaluator.evaluate(reading) == ComfortStatus.CRITICO
 
@@ -73,8 +73,8 @@ def test_far_below_min_humidity_is_critico(thresholds: ComfortThresholds) -> Non
 def test_low_luminosity_is_atencao_then_critico(thresholds: ComfortThresholds) -> None:
     evaluator = ComfortEvaluator(thresholds)
 
-    slightly_low = make_reading(temperature=23.0, humidity=50.0, luminosity=200.0)  # -100
-    very_low = make_reading(temperature=23.0, humidity=50.0, luminosity=50.0)  # -250
+    slightly_low = make_reading(temperature=23.0, humidity=50.0, luminosity=200.0)
+    very_low = make_reading(temperature=23.0, humidity=50.0, luminosity=50.0)
 
     assert evaluator.evaluate(slightly_low) == ComfortStatus.ATENCAO
     assert evaluator.evaluate(very_low) == ComfortStatus.CRITICO

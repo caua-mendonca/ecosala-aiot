@@ -71,9 +71,6 @@ def test_get_latest_readings_passes_room_id_filter(api_app: FastAPI) -> None:
 
 
 def test_get_reading_history_requires_device_id(api_app: FastAPI) -> None:
-    # FastAPI resolve as dependencies antes de finalizar a validacao dos
-    # query params; sem um override, a dependency real tentaria acessar
-    # app.state (inexistente nesta app de teste sem lifespan).
     api_app.dependency_overrides[get_reading_history_use_case] = lambda: GetReadingHistory(
         FakeReadingRepository()
     )

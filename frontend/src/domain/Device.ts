@@ -1,4 +1,3 @@
-/** Espelha DeviceSchema da API. */
 export interface Device {
   device_id: string
   room_id: string

@@ -1,5 +1,3 @@
-"""Configuracao de logging estruturado da aplicacao (sem uso de print())."""
-
 from __future__ import annotations
 
 import logging

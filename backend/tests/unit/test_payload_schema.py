@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime
 
 from app.infrastructure.mqtt.payload_schema import TelemetryPayload, parse_telemetry_payload
 
@@ -66,3 +67,14 @@ def test_to_datetime_converts_unix_timestamp() -> None:
     payload = TelemetryPayload.model_validate(VALID_PAYLOAD)
 
     assert payload.to_datetime().timestamp() == VALID_PAYLOAD["timestamp"]
+
+
+def test_to_datetime_falls_back_to_now_for_implausible_timestamp() -> None:
+    data = {**VALID_PAYLOAD, "timestamp": 120}
+    payload = TelemetryPayload.model_validate(data)
+
+    before = datetime.now(UTC)
+    result = payload.to_datetime()
+    after = datetime.now(UTC)
+
+    assert before <= result <= after

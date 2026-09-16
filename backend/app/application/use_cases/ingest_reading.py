@@ -9,8 +9,6 @@ from app.domain.value_objects.comfort_status import ComfortStatus
 
 
 class IngestReading:
-    """Caso de uso: classifica uma leitura recebida e a persiste."""
-
     def __init__(self, repository: ReadingRepository, evaluator: ComfortEvaluator) -> None:
         self._repository = repository
         self._evaluator = evaluator

@@ -1,5 +1,3 @@
-"""GET /readings/latest, /readings/history e /comfort/thresholds."""
-
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Query

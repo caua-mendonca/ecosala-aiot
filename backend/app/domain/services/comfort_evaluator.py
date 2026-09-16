@@ -6,14 +6,6 @@ from app.domain.value_objects.comfort_thresholds import ComfortThresholds
 
 
 class ComfortEvaluator:
-    """Classifica uma leitura em OK, ATENCAO ou CRITICO.
-
-    Regra: cada grandeza (temperatura, umidade, luminosidade) tem um desvio
-    em relacao a sua faixa ideal. Se algum desvio ultrapassar a margem
-    critica configurada, o status e CRITICO. Se houver desvio mas nenhum
-    ultrapassar a margem critica, o status e ATENCAO. Sem nenhum desvio, OK.
-    """
-
     def __init__(self, thresholds: ComfortThresholds) -> None:
         self._thresholds = thresholds
 

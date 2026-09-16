@@ -1,20 +1,3 @@
-"""Simulador de dispositivo EcoSala (plano B para a demonstração).
-
-Publica leituras de temperatura, umidade e luminosidade no mesmo formato do
-firmware ESP32 real (ver docs/contrato-mqtt.md), diretamente no Mosquitto
-local — sem depender do Wokwi.
-
-Dependencia: paho-mqtt >= 2.0
-    pip install "paho-mqtt>=2,<3"
-
-Exemplo de uso:
-    python backend/scripts/simulate_device.py \
-        --host localhost --port 1883 \
-        --username device --password dev-esp32-2026 \
-        --room-id sala-101 --device-id esp32-sala-101 \
-        --interval 5
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -29,8 +12,6 @@ import paho.mqtt.client as mqtt
 
 TOPIC_PREFIX = "ecosala/v1"
 
-# Faixas de variacao simulada (nao sao as faixas de conforto — apenas o
-# intervalo de valores plausíveis que o simulador sorteia)
 TEMPERATURE_BASE_C = 24.0
 TEMPERATURE_VARIATION_C = 4.0
 HUMIDITY_BASE_PERCENT = 50.0
@@ -51,7 +32,7 @@ class SimulatorConfig:
 
 
 def parse_args() -> SimulatorConfig:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description="Simulador de dispositivo EcoSala")
     parser.add_argument("--host", default="localhost", help="Host do broker MQTT")
     parser.add_argument("--port", type=int, default=1883, help="Porta do broker MQTT")
     parser.add_argument("--username", default="device", help="Usuario MQTT")

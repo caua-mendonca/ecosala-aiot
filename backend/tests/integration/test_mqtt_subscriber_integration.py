@@ -1,14 +1,3 @@
-"""Teste de integracao: PahoMessageSubscriber contra um Mosquitto real.
-
-Requer o Mosquitto rodando localmente com os usuarios "device" e "backend"
-configurados (ver infra/mosquitto/). Se o broker nao estiver acessivel, o
-teste e pulado automaticamente.
-
-Como rodar manualmente:
-    cd backend
-    .venv\\Scripts\\python.exe -m pytest tests/integration/test_paho_subscriber.py -v
-"""
-
 from __future__ import annotations
 
 import json
@@ -64,7 +53,7 @@ def test_subscriber_ingests_published_telemetry() -> None:
         client_id="ecosala-test-subscriber",
     )
     subscriber.start()
-    time.sleep(1)  # da tempo da conexao/subscribe se estabelecerem
+    time.sleep(1)
 
     device_id = f"esp32-teste-{int(time.time())}"
     payload = {
@@ -85,7 +74,7 @@ def test_subscriber_ingests_published_telemetry() -> None:
             port=MQTT_PORT,
             auth={"username": MQTT_DEVICE_USERNAME, "password": MQTT_DEVICE_PASSWORD},
         )
-        time.sleep(1)  # da tempo da mensagem chegar e ser processada
+        time.sleep(1)
 
         assert len(repository.saved) == 1
         assert repository.saved[0].reading.device_id == device_id

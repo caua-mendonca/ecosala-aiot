@@ -6,8 +6,6 @@ from datetime import datetime
 
 @dataclass(frozen=True)
 class DeviceSummaryDTO:
-    """Representacao de um dispositivo conhecido, pronta para a presentation."""
-
     device_id: str
     room_id: str
     online: bool
