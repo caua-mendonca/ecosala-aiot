@@ -7,11 +7,11 @@
 
 ## Integrantes do grupo
 
-> Substitua pelos nomes reais do grupo.
-
-- Integrante 1
-- Integrante 2
-- Integrante 3
+- Luis Fernando Barbosa Filho - 25575
+- Arthur do Amaral Carvalhais Pereira - 25403
+- Cauã Mendonça Martello - 25557
+- Raul Ricardo de Mello - 27199
+- Guilherme Souza de Andrea - 25615
 
 ## Sumário
 
