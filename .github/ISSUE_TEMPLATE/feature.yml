@@ -1,0 +1,15 @@
+name: Funcionalidade
+description: Propor uma melhoria ou nova funcionalidade
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problema
+    attributes: { label: Problema ou necessidade }
+    validations: { required: true }
+  - type: textarea
+    id: proposta
+    attributes: { label: Proposta }
+    validations: { required: true }
+  - type: textarea
+    id: aceite
+    attributes: { label: Critérios de aceite, placeholder: "- [ ] ..." }
