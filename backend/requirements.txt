@@ -1,0 +1,18 @@
+# Backend EcoSala AIoT (API, gateway, gravador, inferência, worker, simulador)
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30,<1.0
+pydantic>=2.7,<3.0
+httpx>=0.27,<1.0
+requests>=2.32,<3.0
+paho-mqtt>=2.1,<3.0
+pika>=1.3,<2.0
+aio-pika>=9.4,<10.0
+influxdb-client>=1.44,<2.0
+psycopg[binary]>=3.2,<4.0
+psycopg-pool>=3.2,<4.0
+bcrypt>=4.1,<6.0
+PyJWT>=2.8,<3.0
+numpy>=1.26,<3.0
+pandas>=2.2,<4.0
+scikit-learn>=1.5,<2.0
+joblib>=1.4,<2.0
