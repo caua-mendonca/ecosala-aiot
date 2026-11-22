@@ -1,0 +1,46 @@
+# Segredos / ambiente
+.env
+*.env
+!.env.example
+
+# Binarios locais de Mosquitto/InfluxDB baixados para desenvolvimento
+/tools/
+
+# Python (backend)
+__pycache__/
+*.pyc
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.local
+
+# Mosquitto (dados/senhas reais geradas localmente)
+infra/mosquitto/passwd
+infra/mosquitto/credentials.local.txt
+infra/mosquitto/data/*
+!infra/mosquitto/data/.gitkeep
+infra/mosquitto/log/*
+!infra/mosquitto/log/.gitkeep
+
+# InfluxDB (dados locais)
+infra/influxdb/data/
+
+# Editor / SO
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Wokwi (estado de simulação, se gerado)
+firmware/.wokwi/
