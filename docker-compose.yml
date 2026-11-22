@@ -1,0 +1,285 @@
+# EcoSala AIoT — tudo sobe com um único comando:  docker compose up -d --build
+# Antes, uma única vez: python scripts/gerar_segredos.py  (cria o .env com senhas aleatórias)
+#
+# Porta publicada para a aplicação: somente o frontend (http://localhost:8080).
+# Interfaces de exploração (somente em 127.0.0.1): RabbitMQ 15672, InfluxDB 8086, pgAdmin 5050.
+
+name: ecosala
+
+x-python: &python
+  build: ./backend
+  image: ecosala/python:2.0
+  restart: unless-stopped
+  env_file: .env
+  environment: &pyenv
+    TZ: America/Sao_Paulo
+    LOG_LEVEL: INFO
+    RABBITMQ_HOST: rabbitmq
+    RABBITMQ_VHOST: ecosala
+    INFLUXDB_URL: http://influxdb:8086
+    INFLUXDB_ORG: ecosala
+    INFLUXDB_BUCKET: telemetria
+    INFLUXDB_LAB_BUCKET: lab
+    MQTT_HOST: mosquitto
+    MODELS_DIR: /models
+    DATA_DIR: /data
+    SAMPLE_MINUTES: "10"
+  healthcheck: &pyhealth
+    test: ["CMD", "python", "-m", "ecosala_common.health", "60"]
+    interval: 15s
+    timeout: 5s
+    retries: 4
+    start_period: 30s
+
+services:
+  # ------------------------------------------------------------ infraestrutura
+  mosquitto:
+    image: eclipse-mosquitto:2.0.20
+    restart: unless-stopped
+    entrypoint: ["sh", "/entrypoint.sh"]
+    environment:
+      MQTT_DEVICE_PASSWORD: ${MQTT_DEVICE_PASSWORD:?rode scripts/gerar_segredos.py}
+      MQTT_GATEWAY_PASSWORD: ${MQTT_GATEWAY_PASSWORD:?rode scripts/gerar_segredos.py}
+    volumes:
+      - ./infra/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./infra/mosquitto/acl:/mosquitto/config/acl:ro
+      - ./infra/mosquitto/entrypoint.sh:/entrypoint.sh:ro
+      - mosquitto-data:/mosquitto/data
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -h localhost -u gateway -P \"$$MQTT_GATEWAY_PASSWORD\" -t '$$SYS/broker/uptime' -C 1 -W 5"]
+      interval: 10s
+      timeout: 8s
+      retries: 6
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    restart: unless-stopped
+    hostname: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_ADMIN_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_ADMIN_PASSWORD:?rode scripts/gerar_segredos.py}
+      RABBITMQ_DEFAULT_VHOST: ecosala
+    ports:
+      - "127.0.0.1:15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+
+  rabbit-init:
+    <<: *python
+    restart: "no"
+    command: ["python", "-m", "rabbit_init.main"]
+    environment:
+      <<: *pyenv
+      RABBITMQ_MGMT_URL: http://rabbitmq:15672
+    healthcheck:
+      disable: true
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ecosala
+      POSTGRES_USER: ecosala
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?rode scripts/gerar_segredos.py}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ecosala -d ecosala"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  influxdb:
+    image: influxdb:2.7
+    restart: unless-stopped
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_ADMIN_USER}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_ADMIN_PASSWORD:?rode scripts/gerar_segredos.py}
+      DOCKER_INFLUXDB_INIT_ORG: ecosala
+      DOCKER_INFLUXDB_INIT_BUCKET: telemetria
+      DOCKER_INFLUXDB_INIT_RETENTION: 30d
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN}
+    ports:
+      - "127.0.0.1:8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
+      - ./infra/influxdb/create-lab-bucket.sh:/docker-entrypoint-initdb.d/create-lab-bucket.sh:ro
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:?rode scripts/gerar_segredos.py}
+      PGADMIN_CONFIG_SERVER_MODE: "True"
+    ports:
+      - "127.0.0.1:5050:80"
+    volumes:
+      - ./infra/pgadmin/servers.json:/pgadmin4/servers.json:ro
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    environment:
+      OLLAMA_KEEP_ALIVE: 24h
+      OLLAMA_NUM_PARALLEL: "1"
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  ollama-init:
+    image: ollama/ollama:latest
+    restart: "no"
+    entrypoint: ["sh", "/init.sh"]
+    environment:
+      OLLAMA_HOST: ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
+    volumes:
+      - ./infra/ollama/init.sh:/init.sh:ro
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+  # ------------------------------------------------------------ aplicação
+  api:
+    <<: *python
+    command: ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--proxy-headers", "--forwarded-allow-ips", "*"]
+    environment:
+      <<: *pyenv
+      RABBITMQ_USER: ${RABBITMQ_API_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_API_PASSWORD}
+      RABBITMQ_MGMT_URL: http://rabbitmq:15672
+      DATABASE_URL: postgresql://ecosala:${POSTGRES_PASSWORD}@postgres:5432/ecosala
+      OLLAMA_URL: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=4).status == 200 else 1)"]
+      interval: 10s
+      timeout: 6s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+      rabbit-init:
+        condition: service_completed_successfully
+
+  gateway:
+    <<: *python
+    command: ["python", "-m", "gateway.main"]
+    environment:
+      <<: *pyenv
+      RABBITMQ_USER: ${RABBITMQ_GATEWAY_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_GATEWAY_PASSWORD}
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+      rabbit-init:
+        condition: service_completed_successfully
+
+  influx-writer:
+    <<: *python
+    command: ["python", "-m", "influx_writer.main"]
+    environment:
+      <<: *pyenv
+      RABBITMQ_USER: ${RABBITMQ_WRITER_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_WRITER_PASSWORD}
+    depends_on:
+      influxdb:
+        condition: service_healthy
+      rabbit-init:
+        condition: service_completed_successfully
+
+  inference:
+    <<: *python
+    command: ["python", "-m", "inference.main"]
+    environment:
+      <<: *pyenv
+      RABBITMQ_USER: ${RABBITMQ_INFERENCE_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_INFERENCE_PASSWORD}
+    volumes:
+      - models:/models
+    depends_on:
+      rabbit-init:
+        condition: service_completed_successfully
+
+  worker:
+    <<: *python
+    command: ["python", "-m", "worker.main"]
+    environment:
+      <<: *pyenv
+      RABBITMQ_USER: ${RABBITMQ_WORKER_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_WORKER_PASSWORD}
+      AUTO_BOOTSTRAP_MODEL: "true"
+      SYNTH_MAX_READINGS: "40000000"
+    volumes:
+      - models:/models
+      - datasets:/data
+    depends_on:
+      influxdb:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+
+  simulator:
+    <<: *python
+    command: ["python", "-m", "simulator.main"]
+    environment:
+      <<: *pyenv
+      TICK_SECONDS: "2"
+      SIM_NATURAL_FAULT: "lab-201:rolamento:9"
+    depends_on:
+      gateway:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    image: ecosala/frontend:2.0
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  mosquitto-data:
+  rabbitmq-data:
+  postgres-data:
+  influxdb-data:
+  influxdb-config:
+  pgadmin-data:
+  ollama-data:
+  models:
+  datasets:

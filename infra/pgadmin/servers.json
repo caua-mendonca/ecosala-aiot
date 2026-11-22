@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "EcoSala (PostgreSQL)",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "ecosala",
+      "Username": "ecosala",
+      "SSLMode": "prefer"
+    }
+  }
+}

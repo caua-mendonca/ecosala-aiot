@@ -1,0 +1,14 @@
+# Dispositivos (simulador): publicam telemetria/status/ack e só leem comandos
+user device
+topic write ecosala/v1/+/+/telemetry
+topic write ecosala/v1/+/+/status
+topic write ecosala/v1/+/+/ack
+topic read ecosala/v1/+/+/command
+
+# Gateway (aplicação): lê telemetria/status/ack e só escreve comandos
+user gateway
+topic read ecosala/v1/+/+/telemetry
+topic read ecosala/v1/+/+/status
+topic read ecosala/v1/+/+/ack
+topic write ecosala/v1/+/+/command
+topic read $SYS/#

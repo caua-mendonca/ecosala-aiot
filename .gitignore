@@ -1,39 +1,28 @@
-# Segredos / ambiente
+# Segredos (gerados por scripts/gerar_segredos.py)
 .env
 *.env
 !.env.example
+credenciais-demo.txt
+secrets/
 
-# Binarios locais de Mosquitto/InfluxDB baixados para desenvolvimento
-/tools/
-
-# Python (backend)
+# Python
 __pycache__/
 *.pyc
 .venv/
 venv/
+.pytest_cache/
 .mypy_cache/
 .ruff_cache/
-.pytest_cache/
 *.egg-info/
-dist/
-build/
 
 # Node / Frontend
 node_modules/
 frontend/dist/
-frontend/.vite/
-*.local
 
-# Mosquitto (dados/senhas reais geradas localmente)
-infra/mosquitto/passwd
-infra/mosquitto/credentials.local.txt
-infra/mosquitto/data/*
-!infra/mosquitto/data/.gitkeep
-infra/mosquitto/log/*
-!infra/mosquitto/log/.gitkeep
-
-# InfluxDB (dados locais)
-infra/influxdb/data/
+# Dados gerados localmente
+data/
+models/
+logs/
 
 # Editor / SO
 .vscode/*
@@ -42,5 +31,14 @@ infra/influxdb/data/
 .DS_Store
 Thumbs.db
 
-# Wokwi (estado de simulação, se gerado)
+# Legado do 1º bimestre (binários baixados)
+/tools/
+firmware/.pio/
 firmware/.wokwi/
+
+# Legado do 1º bimestre (senhas e dados locais)
+legado-1bim/infra/mosquitto/passwd
+legado-1bim/infra/mosquitto/credentials.local.txt
+legado-1bim/infra/mosquitto/data/*
+legado-1bim/infra/mosquitto/log/*
+legado-1bim/infra/influxdb/data/
