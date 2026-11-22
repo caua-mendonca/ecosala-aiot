@@ -1,0 +1,66 @@
+# Ambiente PRODUÇÃO — sobrepõe o docker-compose.yml e usa imagens prontas do GHCR (sem build local).
+#   export GHCR_OWNER=<dono-do-repo-em-minusculas>  IMAGE_TAG=v2.0.0
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --wait
+# Diferenças: imagens versionadas, logs em WARNING, restart always, só o frontend exposto
+# (porta FRONTEND_PORT, padrão 80) e pgAdmin fora do ar (suba com:  --profile tools).
+
+name: ecosala-prod
+
+x-prod-python: &prod-python
+  image: ghcr.io/${GHCR_OWNER:?defina GHCR_OWNER}/ecosala-backend:${IMAGE_TAG:-latest}
+  pull_policy: always
+  restart: always
+  environment:
+    LOG_LEVEL: WARNING
+
+services:
+  api:
+    <<: *prod-python
+    build: !reset null
+  gateway:
+    <<: *prod-python
+    build: !reset null
+  influx-writer:
+    <<: *prod-python
+    build: !reset null
+  inference:
+    <<: *prod-python
+    build: !reset null
+  worker:
+    <<: *prod-python
+    build: !reset null
+  simulator:
+    <<: *prod-python
+    build: !reset null
+  rabbit-init:
+    <<: *prod-python
+    build: !reset null
+
+  frontend:
+    image: ghcr.io/${GHCR_OWNER:?defina GHCR_OWNER}/ecosala-frontend:${IMAGE_TAG:-latest}
+    build: !reset null
+    pull_policy: always
+    restart: always
+    ports: !override
+      - "${FRONTEND_PORT:-80}:8080"
+
+  rabbitmq:
+    restart: always
+    ports: !reset []
+
+  influxdb:
+    restart: always
+    ports: !reset []
+
+  postgres:
+    restart: always
+
+  mosquitto:
+    restart: always
+
+  ollama:
+    restart: always
+
+  pgadmin:
+    profiles: ["tools"]

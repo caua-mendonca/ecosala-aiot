@@ -1,0 +1,19 @@
+name: Bug
+description: Algo não funciona como esperado
+labels: [bug]
+body:
+  - type: textarea
+    id: descricao
+    attributes: { label: O que aconteceu, description: "O que você esperava e o que viu?" }
+    validations: { required: true }
+  - type: textarea
+    id: passos
+    attributes: { label: Passos para reproduzir, placeholder: "1. ...\n2. ..." }
+    validations: { required: true }
+  - type: dropdown
+    id: ambiente
+    attributes: { label: Ambiente, options: [dev, prod, local (testar.bat)] }
+    validations: { required: true }
+  - type: textarea
+    id: logs
+    attributes: { label: Logs, description: "Saída de `docker compose logs <serviço>` (sem senhas!)", render: shell }
