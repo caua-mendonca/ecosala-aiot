@@ -1,5 +1,5 @@
 # 1) build do Vue/Vite  2) nginx sem root servindo os arquivos e fazendo proxy da API
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install --no-audit --no-fund
