@@ -1,18 +1,17 @@
-import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import vueDevTools from 'vite-plugin-vue-devtools'
 
-// https://vite.dev/config/
+// Em desenvolvimento (npm run dev) as chamadas /api e /ws vão para a API local.
 export default defineConfig({
-  plugins: [
-    vue(),
-    vueDevTools(),
-  ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+  plugins: [vue()],
+  server: {
+    port: 5173,
+    proxy: {
+      '/api': 'http://localhost:8000',
+      '/docs': 'http://localhost:8000',
+      '/openapi.json': 'http://localhost:8000',
+      '/ws': { target: 'ws://localhost:8000', ws: true },
     },
   },
+  build: { chunkSizeWarningLimit: 1500 },
 })
