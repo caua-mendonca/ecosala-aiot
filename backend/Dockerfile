@@ -1,7 +1,7 @@
 # Imagem única para todos os serviços Python do EcoSala (API, gateway, gravador,
 # inferência, worker de IA, simulador e rabbit-init). Cada serviço escolhe o
 # comando no docker-compose.yml.
-FROM python:3.12-slim
+FROM python:3.15-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
