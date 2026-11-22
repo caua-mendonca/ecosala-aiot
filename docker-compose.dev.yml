@@ -1,0 +1,49 @@
+# Ambiente DEV — sobrepõe o docker-compose.yml.
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+# Diferenças: código do backend montado no container (API com --reload), logs em DEBUG e
+# portas de depuração publicadas só em 127.0.0.1 (API 8000, MQTT 1883, PostgreSQL 5432).
+# Frontend com hot reload: cd frontend && npm run dev  (http://localhost:5173, proxy para a API em :8000).
+
+name: ecosala-dev
+
+x-dev-python: &dev-python
+  environment:
+    LOG_LEVEL: DEBUG
+  volumes:
+    - ./backend:/app
+
+services:
+  api:
+    <<: *dev-python
+    command: ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--reload-dir", "/app", "--proxy-headers", "--forwarded-allow-ips", "*"]
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  gateway:
+    <<: *dev-python
+
+  influx-writer:
+    <<: *dev-python
+
+  simulator:
+    <<: *dev-python
+
+  inference:
+    environment:
+      LOG_LEVEL: DEBUG
+    volumes:
+      - ./backend:/app
+
+  worker:
+    environment:
+      LOG_LEVEL: DEBUG
+    volumes:
+      - ./backend:/app
+
+  mosquitto:
+    ports:
+      - "127.0.0.1:1883:1883"
+
+  postgres:
+    ports:
+      - "127.0.0.1:5432:5432"

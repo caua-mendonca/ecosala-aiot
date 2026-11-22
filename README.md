@@ -27,6 +27,7 @@ mensageria e **assistente com LLM local no Ollama**). Tudo sobe com **um único 
 - [Mensageria (RabbitMQ)](#mensageria-rabbitmq)
 - [Dados sintéticos e modelos de IA](#dados-sintéticos-e-modelos-de-ia)
 - [Assistente com LLM local](#assistente-com-llm-local)
+- [Git Flow, ambientes e CI/CD](#git-flow-ambientes-e-cicd)
 - [Segurança](#segurança)
 - [Como rodar cada parte da demonstração](#como-rodar-cada-parte-da-demonstração)
 - [Testes automatizados](#testes-automatizados)
@@ -241,6 +242,12 @@ e envia junto com a pergunta — o LLM nunca acessa os bancos. A resposta chega 
 a interface mostra "carregando o modelo", o Markdown é renderizado **sem HTML e sem imagens**, há limite
 de 6 perguntas/minuto por usuário e cada pergunta vai para a auditoria. O botão "Ver resumo enviado ao
 LLM" mostra exatamente o contexto.
+
+## Git Flow, ambientes e CI/CD
+
+- **Branches:** `main` (produção, tags `vX.Y.Z`) e `develop` (integração); trabalho em `feature/*`, `fix/*`, `release/*` e `hotfix/*`, sempre por Pull Request com CI verde. Detalhes em [CONTRIBUTING.md](CONTRIBUTING.md).
+- **Dois ambientes:** `dev` (`docker-compose.dev.yml`) e `produção` (`docker-compose.prod.yml`, imagens do GHCR). Veja [docs/ambientes.md](docs/ambientes.md).
+- **Pipeline:** CI (pytest, type-check, build, Compose, gitleaks, smoke test) e CD (imagens no GHCR + GitHub Release).
 
 ## Segurança
 
